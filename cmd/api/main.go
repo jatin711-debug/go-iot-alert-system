@@ -23,9 +23,9 @@ func main() {
 	dbConfig := &repository.Config{
 		Host:     "localhost",
 		Port:     5432,
-		User:     "myuser",
-		Password: "mypassword",
-		DBName:   "mydb",
+		User:     "root",
+		Password: "secret",
+		DBName:   "alerts",
 	}
 
 	// Initialize Database Connection
@@ -36,10 +36,10 @@ func main() {
 	}
 
 	defer db.Close()
-	// Initialize Repository and Service	
+	// Initialize Repository and Service
 
 	alertRepo := repository.NewAlertRepository(queries) // Create a new AlertRepository instance
-	alertService := service.NewAlertService(alertRepo) // Create a new AlertService instance
+	alertService := service.NewAlertService(alertRepo)  // Create a new AlertService instance
 
 	grpcPort := getEnv("GRPC_PORT", "50051")
 	httpPort := getEnv("HTTP_PORT", "8080")
@@ -88,6 +88,7 @@ func startGRPCServer(grpcServer *grpc.Server, port string) {
 	if err != nil {
 		fmt.Printf("❌ gRPC server error: %v", err)
 	}
+	fmt.Printf("✅ gRPC Server started on port %s\n", port)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		fmt.Printf("❌ gRPC server error: %v", err)
