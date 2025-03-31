@@ -1,0 +1,104 @@
+iot-alerts/
+├── api/                         # 💡 API Definitions (gRPC + OpenAPI)
+│   ├── proto/                   # gRPC Protobuf Definitions
+│   │   ├── alert.proto           # Alert service definition
+│   │   ├── health.proto          # Health check service
+│   │   ├── common.proto          # Shared message types
+│   │   ├── api.proto             # General API
+│   │   ├── Makefile              # Proto build automation
+│   │   ├── buf.yaml              # Buf Schema Linter
+│   ├── openapi/                  # REST API Documentation
+│   │   ├── swagger.yaml          # OpenAPI (Swagger) spec
+│   │   ├── postman_collection.json  # Postman API Collection
+│   │   ├── Makefile              # OpenAPI build automation
+│
+├── cmd/                         # 💡 Main Application Entry Points
+│   ├── api/                      # API Server
+│   │   ├── main.go                # Starts gRPC & HTTP server
+│   │   ├── config.yaml            # API server configuration
+│   ├── worker/                   # Background Worker Service
+│   │   ├── main.go                # Kafka consumer logic
+│   ├── cron/                     # Scheduled Jobs
+│   │   ├── main.go                # Runs cron jobs
+│
+├── internal/                     # 💡 Private Business Logic
+│   ├── cache/                    # 🔥 Redis & Local Caching
+│   │   ├── redis.go               # Redis client
+│   │   ├── lru_cache.go           # LRU cache for fast lookups
+│   │   ├── cache_manager.go       # Cache abstraction layer
+│   ├── webhook/                  # 🔔 Webhook Notification Service
+│   │   ├── handler.go             # Webhook handler
+│   │   ├── notifier.go            # Sends webhook events
+│   │   ├── processor.go           # Processes webhook data
+│   ├── metrics/                   # 📊 Observability (Prometheus + Tracing)
+│   │   ├── prometheus.go          # Prometheus metrics
+│   │   ├── tracing.go             # OpenTelemetry distributed tracing
+│   │   ├── logger.go              # Structured logging (Zap)
+│   ├── repository/                # 🗃️ Database Layer (SQLC)
+│   │   ├── alert_repository.go    # Alert storage logic
+│   │   ├── device_repository.go   # Device storage logic
+│   ├── server/                    # 🛰️ gRPC & REST Server
+│   │   ├── grpc_server.go         # gRPC API server
+│   │   ├── http_server.go         # RESTful API server
+│   │   ├── websocket_server.go    # WebSocket server
+│   ├── service/                   # 📦 Core Business Logic
+│   │   ├── alert_service.go       # Alert processing logic
+│   │   ├── device_service.go      # Device management logic
+│   ├── middleware/                # 🛡️ gRPC & HTTP Middleware
+│   │   ├── auth.go                # Authentication middleware
+│   │   ├── logging.go             # Logging middleware
+│   │   ├── recovery.go            # Panic recovery
+│   ├── util/                      # 🛠️ Utility Functions
+│   │   ├── config.go              # Loads environment variables
+│   │   ├── helper.go              # General helper functions
+│
+├── third_party/                   # 🔗 External Protobuf & OpenAPI Dependencies
+│   ├── googleapis/                 # Google API .proto files
+│   ├── grpc-gateway/               # gRPC Gateway .proto files
+│   ├── openapi/                    # OpenAPI dependencies
+│
+├── db/                             # 💾 Database Schema & Migrations
+│   ├── migrations/                 # SQL Migration Files
+│   │   ├── 001_init.up.sql         # Initial schema
+│   │   ├── 002_add_alerts.up.sql   # Alerts table
+│   ├── sqlc/                       # SQLC Code Generation
+│   │   ├── sqlc.yaml               # SQLC configuration
+│   │   ├── queries.sql             # SQL Queries
+│   │   ├── models.go               # Generated Go models
+│
+├── deploy/                         # 🚀 Deployment Configurations
+│   ├── helm/                       # Kubernetes Helm Charts
+│   │   ├── Chart.yaml              # Helm Chart metadata
+│   │   ├── values.yaml             # Default Helm values
+│   │   ├── templates/              # Kubernetes YAML templates
+│   ├── k8s/                        # Kubernetes Manifests
+│   │   ├── deployment.yaml         # API Deployment
+│   │   ├── service.yaml            # Service definition
+│   │   ├── ingress.yaml            # Ingress configuration
+│   ├── docker/                     # Docker Configurations
+│   │   ├── Dockerfile              # API Server Dockerfile
+│   │   ├── docker-compose.yaml     # Local Docker setup
+│
+├── scripts/                        # 🛠️ Utility Scripts
+│   ├── init_db.sh                  # Initialize database
+│   ├── run_migrations.sh           # Run DB migrations
+│
+├── test/                           # ✅ Unit & Integration Tests
+│   ├── api_test.go                 # API tests
+│   ├── service_test.go             # Service tests
+│   ├── repository_test.go          # Database tests
+│
+├── .github/                        # 🛠️ CI/CD (GitHub Actions)
+│   ├── workflows/
+│   │   ├── ci.yaml                 # CI pipeline
+│   │   ├── deploy.yaml             # CD pipeline
+│
+├── config/                         # ⚙️ Configuration Files
+│   ├── dev.yaml                    # Development config
+│   ├── prod.yaml                   # Production config
+│   ├── test.yaml                    # Test config
+│
+├── Makefile                        # 🏗️ Build & Automation
+├── go.mod                           # Go Module File
+├── README.md                        # 📖 Project Documentation
+├── LICENSE                          # 📜 License Information

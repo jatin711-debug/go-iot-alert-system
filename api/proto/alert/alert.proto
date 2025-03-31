@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package alert;
+
+option go_package = ".";
+
+service AlertService {
+    rpc GetAlerts(AlertRequest) returns (AlertResponse);
+}
+
+message Alert {
+    int32 asset_id = 1;
+    string alert_type = 2;
+    int64 timestamp = 3;
+    string severity = 4;
+}
+
+message AlertRequest {
+    int32 asset_id = 1;
+    string type = 2;   
+}
+
+message AlertResponse {
+   repeated  Alert alerts = 1;
+}
