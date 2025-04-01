@@ -13,7 +13,7 @@ import (
 	"alerts/internal/repository"
 	"alerts/internal/server"
 	"alerts/internal/service"
-
+	utils "alerts/internal/utils"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
@@ -36,6 +36,9 @@ func main() {
 	}
 
 	defer db.Close()
+
+	// Load Environment Variables
+	utils.LoadConfig(".env") // Load environment variables from .env file
 	// Initialize Repository and Service
 
 	alertRepo := repository.NewAlertRepository(queries) // Create a new AlertRepository instance

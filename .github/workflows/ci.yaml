@@ -14,6 +14,21 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U root -d testdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: 🛠️ Checkout Repository
         uses: actions/checkout@v4
@@ -31,8 +46,14 @@ jobs:
         with:
           version: latest
 
-      - name: ✅ Run Tests
-        run: go test ./... -v -race
+      - name: ⏳ Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U root -d testdb; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
 
-      - name: 🚀 Build Application
-        run: go build -v ./...
+      - name: ✅ Run Tests
+        env:
+          DATABASE_URL: postgres://root:secret@localhost:5432/testdb?sslmode=disable
+        run: go test ./... -v -race
