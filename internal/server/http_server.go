@@ -2,7 +2,7 @@ package server
 
 import (
 	"net/http"
-	"os"
+	// "os"
 
 	"github.com/gin-gonic/gin"
 	// nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
@@ -23,12 +23,12 @@ func SetupNewRelic(appName, licenseKey string) (*newrelic.Application, error) {
 }
 
 // getEnv retrieves the value of an environment variable or returns a default value
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
-}
+// func getEnv(key, fallback string) string {
+// 	if value, exists := os.LookupEnv(key); exists {
+// 		return value
+// 	}
+// 	return fallback
+// }
 
 // SetupRoutes configures all API routes
 func SetupRoutes(router *gin.Engine) {
