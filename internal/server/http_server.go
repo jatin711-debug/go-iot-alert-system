@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
+	// nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
 	newrelic "github.com/newrelic/go-agent/v3/newrelic"
 )
 
@@ -33,12 +33,12 @@ func getEnv(key, fallback string) string {
 // SetupRoutes configures all API routes
 func SetupRoutes(router *gin.Engine) {
 	// Fetch New Relic license key from environment variable or use a default value
-	licenseKey := getEnv("NEW_RELIC_LICENSE_KEY", "")
-	app, err := SetupNewRelic("alerts", licenseKey)
-	if err != nil {
-		panic("Failed to initialize New Relic: " + err.Error())
-	}
-	router.Use(nrgin.Middleware(app)) // New Relic instrumentation
+	// licenseKey := getEnv("NEW_RELIC_LICENSE_KEY", "")
+	// app, err := SetupNewRelic("alerts", licenseKey)
+	// if err != nil {
+	// 	panic("Failed to initialize New Relic: " + err.Error())
+	// }
+	// router.Use(nrgin.Middleware(app)) // New Relic instrumentation
 	router.Use(gin.Logger())          // Request logging
 	router.Use(gin.Recovery())        // Panic recovery
 
