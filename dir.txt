@@ -30,6 +30,11 @@ iot-alerts/
 │   │   ├── handler.go             # Webhook handler
 │   │   ├── notifier.go            # Sends webhook events
 │   │   ├── processor.go           # Processes webhook data
+|   ├── handler/
+|   |   ├── auth_handler.go         # Handles login, register, logout
+|   |   ├── alert_handler.go        # CRUD for IoT Alerts
+|   |   ├── grpc_handler.go         # gRPC Gateway Handler
+|   |   ├── kafka_handler.go        # Kafka Message Processing
 │   ├── metrics/                   # 📊 Observability (Prometheus + Tracing)
 │   │   ├── prometheus.go          # Prometheus metrics
 │   │   ├── tracing.go             # OpenTelemetry distributed tracing

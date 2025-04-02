@@ -18,12 +18,12 @@ func NewAlertService(repo *repository.AlertRepository) *AlertService {
 }
 
 // CreateAlert processes and saves an alert
-func (s *AlertService) CreateAlert(ctx context.Context, data map[string]interface{}) error {
+func (s *AlertService) CreateAlert(ctx context.Context, data map[string]any) error {
 	return s.Repo.SaveAlert(ctx, data) // Calls repository to store alert in DB
 }
 
 // GetAlert fetches an alert by ID
-func (s *AlertService) GetAlert(ctx context.Context, id int32) (map[string]interface{}, error) {
+func (s *AlertService) GetAlert(ctx context.Context, id int32) (map[string]any, error) {
 	return s.Repo.FindAlertByID(ctx, id)
 }
 
