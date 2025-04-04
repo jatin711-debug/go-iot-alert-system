@@ -1,0 +1,31 @@
+# Ignore Git stuff
+.git
+.gitignore
+
+# Ignore IDE/project files
+.vscode
+.idea
+*.iml
+
+# Ignore data and logs
+*.log
+*.env
+data/
+logs/
+tmp/
+media/
+
+# Ignore local node/python/go modules if present
+node_modules
+venv
+__pycache__
+
+# Ignore build artifacts
+dist/
+build/
+*.out
+*.exe
+
+# Ignore test data
+tests/
+coverage/
