@@ -34,3 +34,8 @@ spec:
               value: "50051"
             - name: HTTP_PORT
               value: "8080"
+            - name: NEW_RELIC_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: newrelic-secret
+                  key: NEW_RELIC_LICENSE_KEY

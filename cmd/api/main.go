@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -22,12 +23,17 @@ import (
 
 func main() {
 	// Load Configuration (Port Numbers)
+	portStr := utils.GetEnv("DB_PORT", "5432")
+	portInt, err := strconv.Atoi(portStr)
+	if err != nil {
+		portInt = 5432 // fallback default
+	}
 	dbConfig := &repository.Config{
-		Host:     "localhost",
-		Port:     5432,
-		User:     "root",
-		Password: "secret",
-		DBName:   "alerts",
+		Host:     utils.GetEnv("DB_HOST", "localhost"),
+		Port:     portInt,
+		User:     utils.GetEnv("DB_USER", "root"),
+		Password: utils.GetEnv("DB_PASSWORD", "secret"),
+		DBName:   utils.GetEnv("DB_NAME", "alerts"),
 	}
 
 	// Initialize Database Connection
