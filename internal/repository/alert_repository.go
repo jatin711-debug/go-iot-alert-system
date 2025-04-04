@@ -41,7 +41,7 @@ func (r *AlertRepository) FindAlertByID(ctx context.Context, id int32) (map[stri
 		return nil, fmt.Errorf("alert not found")
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"id":         alert[0].ID,
 		"asset_id":   alert[0].AssetID,
 		"severity":   alert[0].Severity,

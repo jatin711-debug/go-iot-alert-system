@@ -13,7 +13,7 @@ func TestHealthCheck(t *testing.T) {
 	// Create a test Gin router
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	SetupRoutes(router)
+	SetupRoutes(router, nil) // Setup routes without a handler
 
 	// Create a request to the health endpoint
 	req, _ := http.NewRequest("GET", "/api/health", nil)

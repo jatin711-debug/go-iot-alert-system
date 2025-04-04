@@ -10,10 +10,12 @@ import (
 	"time"
 
 	pb "alerts/api/proto/alert" // Import generated gRPC code
+	"alerts/internal/handlers"
 	"alerts/internal/repository"
 	"alerts/internal/server"
 	"alerts/internal/service"
 	utils "alerts/internal/utils"
+
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
@@ -43,6 +45,8 @@ func main() {
 
 	alertRepo := repository.NewAlertRepository(queries) // Create a new AlertRepository instance
 	alertService := service.NewAlertService(alertRepo)  // Create a new AlertService instance
+	// Create a new handler instance with the AlertService.
+	alertHandler := handlers.NewHandler(alertService)
 
 	grpcPort := getEnv("GRPC_PORT", "50051")
 	httpPort := getEnv("HTTP_PORT", "8080")
@@ -52,7 +56,7 @@ func main() {
 
 	// Create Gin Router
 	router := gin.Default()
-	server.SetupRoutes(router) // Set up HTTP routes
+	server.SetupRoutes(router, alertHandler) // Set up HTTP routes
 
 	// Start gRPC Server
 	grpcServer := grpc.NewServer()
