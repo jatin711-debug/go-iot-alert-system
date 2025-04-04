@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: alerts-api
-          image: johnny711dock/alerts-api:latest
+          image: johnny711dock/alerts:latest
           ports:
             - containerPort: 8080
           env:
