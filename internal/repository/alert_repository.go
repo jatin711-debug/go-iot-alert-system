@@ -31,7 +31,7 @@ func (r *AlertRepository) SaveAlert(ctx context.Context, data map[string]any) er
 func (r *AlertRepository) FindAlertByID(ctx context.Context, id int32) (map[string]any, error) {
 	alert, err := r.Db.GetAlerts(ctx, sqlc.GetAlertsParams{
 		AssetID:  id,
-		Severity: "high",
+		Severity: "High",
 	})
 	if err != nil {
 		return nil, err
