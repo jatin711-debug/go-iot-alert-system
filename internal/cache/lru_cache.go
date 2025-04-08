@@ -31,7 +31,7 @@ func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	return lru
 }
 
-func (c *LRUCache) Get(key string) (interface{}, bool) {
+func (c *LRUCache) Get(key string) (any, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

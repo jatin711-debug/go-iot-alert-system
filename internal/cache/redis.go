@@ -22,7 +22,7 @@ func NewRedisClient(host string, port int, password string, db int) *RedisClient
 	return &RedisClient{client: rdb}
 }
 
-func (r *RedisClient) Set(key string, value interface{}, ttl time.Duration) error {
+func (r *RedisClient) Set(key string, value any, ttl time.Duration) error {
 	ctx := context.Background()
 	return r.client.Set(ctx, key, value, ttl).Err()
 }
