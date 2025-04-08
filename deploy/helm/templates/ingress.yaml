@@ -1,0 +1,21 @@
+# deploy/helm/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }} # Name of the ingress resource
+  labels:
+    app: {{ .Release.Name }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: alerts.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }} # Name of the service to route to
+                port:
+                  number: {{ .Values.service.port }}

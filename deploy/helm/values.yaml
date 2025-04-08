@@ -1,0 +1,47 @@
+# deploy/helm/values.yaml
+
+replicaCount: 2
+
+image:
+  repository: johnny711dock/alerts
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+env:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: root
+  DB_PASSWORD: secret
+  DB_NAME: alerts
+  GRPC_PORT: "50051"
+  HTTP_PORT: "8080"
+  NEW_RELIC_LICENSE_KEY: ""
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+redis:
+  enabled: true
+  host: redis
+  port: 6379
+
+postgres:
+  enabled: true
+  host: postgres
+  port: 5432
+  user: root
+  password: secret
+  db: alerts
+  persistence:
+    enabled: true
+    size: 8Gi
+  storageClass: standard

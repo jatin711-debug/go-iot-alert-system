@@ -1,0 +1,13 @@
+# deploy/helm/Chart.yaml
+apiVersion: v2
+name: alerts-service
+version: 0.1.0
+description: A Helm chart for deploying the Alerts API with Redis and PostgreSQL support
+appVersion: "1.0.0"
+dependencies:
+  - name: redis
+    version: 20.11.4
+    repository: https://charts.bitnami.com/bitnami
+  - name: postgresql
+    version: 16.6.2
+    repository: https://charts.bitnami.com/bitnami

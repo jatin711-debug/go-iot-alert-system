@@ -1,0 +1,75 @@
+replicaCount: 2
+
+image:
+  repository: johnny711dock/alerts
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  name: alerts-service
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "2500m"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: alerts.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+env:
+  - name: DB_HOST
+    value: "postgres"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_USER
+    value: "root"
+  - name: DB_PASSWORD
+    value: "secret"
+  - name: DB_NAME
+    value: "alerts"
+  - name: GRPC_PORT
+    value: "50051"
+  - name: HTTP_PORT
+    value: "8080"
+  - name: NEW_RELIC_LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: newrelic-secret
+        key: NEW_RELIC_LICENSE_KEY
+
+postgres:
+  image: postgres:15
+  storage:
+    size: 1Gi
+    storageClassName: standard
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  env:
+    POSTGRES_USER: root
+    POSTGRES_PASSWORD: secret
+    POSTGRES_DB: alerts
+
+redis:
+  enabled: true
+  image: redis:7
+  port: 6379

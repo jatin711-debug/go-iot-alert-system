@@ -1,0 +1,22 @@
+# deploy/helm/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }} # Name of the configmap
+  labels:
+    app: {{ .Release.Name }}
+data:
+  DB_HOST: {{ .Values.env.DB_HOST | quote }}
+  DB_PORT: {{ .Values.env.DB_PORT | quote }}
+  DB_USER: {{ .Values.env.DB_USER | quote }}
+  DB_PASSWORD: {{ .Values.env.DB_PASSWORD | quote }}
+  DB_NAME: {{ .Values.env.DB_NAME | quote }}
+  GRPC_PORT: {{ .Values.env.GRPC_PORT | quote }}
+  HTTP_PORT: {{ .Values.env.HTTP_PORT | quote }}
+  REDIS_HOST: {{ .Values.redis.host | quote }}
+  REDIS_PORT: {{ .Values.redis.port | quote }}
+  POSTGRES_HOST: {{ .Values.postgres.host | quote }}
+  POSTGRES_PORT: {{ .Values.postgres.port | quote }}
+  POSTGRES_USER: {{ .Values.postgres.user | quote }}
+  POSTGRES_PASSWORD: {{ .Values.postgres.password | quote }}
+  POSTGRES_DB: {{ .Values.postgres.db | quote }}
