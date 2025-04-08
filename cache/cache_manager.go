@@ -1,0 +1,42 @@
+package cache
+
+import (
+	"time"
+)
+
+type CacheManager struct {
+	redisClient *RedisClient
+	localCache  *LRUCache
+}
+
+func NewCacheManager(redisClient *RedisClient, localCache *LRUCache) *CacheManager {
+	return &CacheManager{
+		redisClient: redisClient,
+		localCache:  localCache,
+	}
+}
+
+func (cm *CacheManager) Get(key string) (string, error) {
+	// Try local cache
+	if val, ok := cm.localCache.Get(key); ok {
+		return val.(string), nil
+	}
+
+	// Try Redis
+	val, err := cm.redisClient.Get(key)
+	if err == nil {
+		// Set to local cache for faster next read
+		cm.localCache.Set(key, val)
+	}
+	return val, err
+}
+
+func (cm *CacheManager) Set(key, value string, expiration time.Duration) error {
+	cm.localCache.Set(key, value)
+	return cm.redisClient.Set(key, value, expiration)
+}
+
+func (cm *CacheManager) Delete(key string) error {
+	cm.localCache.Delete(key)
+	return cm.redisClient.Delete(key)
+}
