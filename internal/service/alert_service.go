@@ -41,7 +41,7 @@ func (s *AlertService) CreateAlert(ctx context.Context, data map[string]any) err
 			return fmt.Errorf("failed to create alert in cache: %w", err)
 		}
 	}
-
+	s.KafkaLogger.LogInfo("Alert created for asset ID: " + fmt.Sprintf("%d", data["asset_id"]) + " with severity: " + data["severity"].(string))
 	return s.Repo.SaveAlert(ctx, data) // Calls repository to store alert in DB
 }
 

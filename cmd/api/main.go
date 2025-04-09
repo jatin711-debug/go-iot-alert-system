@@ -32,6 +32,7 @@ func main() {
 
 	// Kafka logger
 	kafkaLogger := kafka.NewKafkaLogger([]string{os.Getenv("KAFKA_BROKER")}, "iot-logs", logger)
+	kafkaLogger.LogInfo("✅ Kafka producer started")
 	defer kafkaLogger.Close()
 
 	// DB configuration
@@ -89,7 +90,6 @@ func main() {
 	// Start servers concurrently
 	go startHTTPServer(router, httpPort, logger)
 	go startGRPCServer(grpcServer, grpcPort, logger)
-
 	// Wait for termination signal
 	<-utils.GracefulShutdown()
 

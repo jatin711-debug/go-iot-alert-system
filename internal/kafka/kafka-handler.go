@@ -23,7 +23,6 @@ func NewKafkaLogger(brokers []string, topic string, logger *zap.Logger) *KafkaLo
 			RequiredAcks:           kafka.RequireAll,
 			Async:                  false,
 			BatchTimeout:           500 * time.Millisecond,
-			
 		},
 		logger: logger,
 	}
@@ -44,6 +43,18 @@ func (k *KafkaLogger) WriteLog(ctx context.Context, key string, message string) 
 
 	k.logger.Info("log written to Kafka", zap.String("key", key))
 	return nil
+}
+
+func (k *KafkaLogger) LogInfo(message string) {
+	k.WriteLog(context.Background(), "INFO", message)
+}
+
+func (k *KafkaLogger) LogError(message string) {
+	k.WriteLog(context.Background(), "ERROR", message)
+}
+
+func (k *KafkaLogger) LogDebug(message string) {
+	k.WriteLog(context.Background(), "DEBUG", message)
 }
 
 func (k *KafkaLogger) Close() error {
