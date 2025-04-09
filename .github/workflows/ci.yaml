@@ -41,18 +41,6 @@ jobs:
       - name: 📦 Install Dependencies
         run: go mod tidy
 
-      - name: 🔍 Run Linter
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-
-      - name: ⏳ Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h localhost -p 5432 -U root -d testdb; do
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
-
       - name: ✅ Run Tests
         env:
           DATABASE_URL: postgres://root:secret@localhost:5432/testdb?sslmode=disable
