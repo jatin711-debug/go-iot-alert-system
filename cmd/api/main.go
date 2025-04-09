@@ -1,123 +1,129 @@
 package main
 
 import (
-	"fmt"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
-	"time"
-
-	pb "alerts/api/proto/alert" // Import generated gRPC code
+	pb "alerts/api/proto/alert"
 	"alerts/internal/handlers"
 	"alerts/internal/repository"
 	"alerts/internal/server"
 	"alerts/internal/service"
 	utils "alerts/internal/utils"
+	"context"
+	"net"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
+var (
+	httpServer *http.Server
+)
+
 func main() {
-	// Load Configuration (Port Numbers)
+	// Logger setup
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	// Kafka logger
+	kafkaLogger := handlers.NewKafkaLogger([]string{os.Getenv("KAFKA_BROKER")}, "iot-logs", logger)
+	defer kafkaLogger.Close()
+
+	// DB configuration
 	portStr := utils.GetEnv("DB_PORT", "5432")
 	portInt, err := strconv.Atoi(portStr)
 	if err != nil {
-		portInt = 5432 // fallback default
+		portInt = 5432
 	}
 	dbConfig := &repository.Config{
-		Host:     utils.GetEnv("DB_HOST", "localhost"),
+		Host:     utils.GetEnv("DB_HOST", "postgres"),
 		Port:     portInt,
 		User:     utils.GetEnv("DB_USER", "root"),
 		Password: utils.GetEnv("DB_PASSWORD", "secret"),
 		DBName:   utils.GetEnv("DB_NAME", "alerts"),
 	}
 
-	// Initialize Database Connection
+	// Initialize DB connection
 	queries, db, err := repository.NewDBConnection(dbConfig)
 	if err != nil {
-		fmt.Printf("❌ Database connection error: %v\n", err)
-		return
+		logger.Fatal("❌ Database connection error", zap.Error(err))
 	}
-
 	defer db.Close()
 
-	// Load Environment Variables
-	utils.LoadConfig(".env") // Load environment variables from .env file
-	// Initialize Repository and Service
-
-	alertRepo := repository.NewAlertRepository(queries) // Create a new AlertRepository instance
-	alertService := service.NewAlertService(alertRepo)  // Create a new AlertService instance
-	// Create a new handler instance with the AlertService.
+	// Initialize repository, service and handlers
+	alertRepo := repository.NewAlertRepository(queries)
+	alertService := service.NewAlertService(alertRepo)
 	alertHandler := handlers.NewHandler(alertService)
 
-	grpcPort := getEnv("GRPC_PORT", "50051")
-	httpPort := getEnv("HTTP_PORT", "8080")
-	// Channel to listen for termination signals
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	grpcPort := utils.GetEnv("GRPC_PORT", "50051")
+	httpPort := utils.GetEnv("HTTP_PORT", "8080")
 
-	// Create Gin Router
+	// Setup Gin routes
 	router := gin.Default()
-	server.SetupRoutes(router, alertHandler) // Set up HTTP routes
+	server.SetupRoutes(router, alertHandler)
 
-	// Start gRPC Server
+	// Add health check endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// Start gRPC server
 	grpcServer := grpc.NewServer()
-	pb.RegisterAlertServiceServer(grpcServer, alertService) // Register gRPC service
+	pb.RegisterAlertServiceServer(grpcServer, alertService)
 
-	// Start HTTP & gRPC Servers
-	go startHTTPServer(router, httpPort)
-	go startGRPCServer(grpcServer, grpcPort)
+	// Start servers concurrently
+	go startHTTPServer(router, httpPort, logger)
+	go startGRPCServer(grpcServer, grpcPort, logger)
 
-	// Block until termination signal is received
-	<-stop
+	// Wait for termination signal
+	<-utils.GracefulShutdown()
 
-	// Graceful Shutdown
-	shutdownServers(grpcServer)
+	// Graceful shutdown
+	shutdownServers(grpcServer, logger)
 }
 
 // startHTTPServer starts the Gin HTTP server
-func startHTTPServer(router *gin.Engine, port string) {
-	srv := &http.Server{
+func startHTTPServer(router *gin.Engine, port string, logger *zap.Logger) {
+	httpServer = &http.Server{
 		Addr:         ":" + port,
 		Handler:      router,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	fmt.Printf("✅ HTTP Server started on port %s\n", port)
+	logger.Info("✅ HTTP Server started", zap.String("port", port))
 
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("❌ HTTP server error: %v", err)
+	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		logger.Error("❌ HTTP server error", zap.Error(err))
 	}
 }
 
 // startGRPCServer starts the gRPC server
-func startGRPCServer(grpcServer *grpc.Server, port string) {
+func startGRPCServer(grpcServer *grpc.Server, port string, logger *zap.Logger) {
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		fmt.Printf("❌ gRPC server error: %v", err)
+		logger.Fatal("❌ Failed to start gRPC listener", zap.Error(err))
 	}
-	fmt.Printf("✅ gRPC Server started on port %s\n", port)
+	logger.Info("✅ gRPC Server started", zap.String("port", port))
 
 	if err := grpcServer.Serve(listener); err != nil {
-		fmt.Printf("❌ gRPC server error: %v", err)
+		logger.Error("❌ gRPC server error", zap.Error(err))
 	}
 }
 
-// shutdownServers shuts down the gRPC server
-func shutdownServers(grpcServer *grpc.Server) {
+// shutdownServers shuts down both HTTP and gRPC servers
+func shutdownServers(grpcServer *grpc.Server, logger *zap.Logger) {
 	grpcServer.GracefulStop()
-	fmt.Println("✅ gRPC Server stopped gracefully")
-}
+	logger.Info("✅ gRPC Server stopped gracefully")
 
-// getEnv retrieves an environment variable or returns a default value
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	if httpServer != nil {
+		if err := httpServer.Shutdown(context.Background()); err != nil {
+			logger.Error("❌ HTTP server shutdown error", zap.Error(err))
+		} else {
+			logger.Info("✅ HTTP Server stopped gracefully")
+		}
 	}
-	return fallback
 }

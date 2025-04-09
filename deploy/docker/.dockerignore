@@ -9,7 +9,6 @@
 
 # Ignore data and logs
 *.log
-*.env
 data/
 logs/
 tmp/

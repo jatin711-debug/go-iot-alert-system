@@ -16,7 +16,7 @@ DB_CONFIG = {
 SEVERITY_LEVELS = ['Low', 'Medium', 'High', 'Critical']
 
 # Generate dummy data
-def generate_dummy_alerts(num_records=100000000):
+def generate_dummy_alerts(num_records=100000):
     alerts = []
     for _ in range(num_records):
         asset_id = random.randint(1, 50)  # Assuming asset IDs are between 1 and 50
