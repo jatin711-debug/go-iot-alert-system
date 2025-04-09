@@ -8,6 +8,7 @@
 *.iml
 
 # Ignore data and logs
+*.env
 *.log
 data/
 logs/
