@@ -16,12 +16,14 @@ type KafkaLogger struct {
 func NewKafkaLogger(brokers []string, topic string, logger *zap.Logger) *KafkaLogger {
 	return &KafkaLogger{
 		writer: &kafka.Writer{
-			Addr:         kafka.TCP(brokers...),
-			Topic:        topic,
-			Balancer:     &kafka.LeastBytes{},
-			RequiredAcks: kafka.RequireAll,
-			Async:        false,
-			BatchTimeout: 500 * time.Millisecond,
+			Addr:                   kafka.TCP(brokers...),
+			Topic:                  topic,
+			AllowAutoTopicCreation: true,
+			Balancer:               &kafka.LeastBytes{},
+			RequiredAcks:           kafka.RequireAll,
+			Async:                  false,
+			BatchTimeout:           500 * time.Millisecond,
+			
 		},
 		logger: logger,
 	}

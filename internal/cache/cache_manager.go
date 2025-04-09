@@ -16,10 +16,10 @@ func NewCacheManager(redisClient *RedisClient, localCache *LRUCache) *CacheManag
 	}
 }
 
-func (cm *CacheManager) Get(key string) (string, error) {
+func (cm *CacheManager) Get(key string) (map[string]any, error) {
 	// Try local cache
 	if val, ok := cm.localCache.Get(key); ok {
-		return val.(string), nil
+		return val.(map[string]any), nil
 	}
 
 	// Try Redis
@@ -28,10 +28,10 @@ func (cm *CacheManager) Get(key string) (string, error) {
 		// Set to local cache for faster next read
 		cm.localCache.Set(key, val)
 	}
-	return val, err
+	return val.(map[string]any), err
 }
 
-func (cm *CacheManager) Set(key, value string, expiration time.Duration) error {
+func (cm *CacheManager) Set(key string, value map[string]any, expiration time.Duration) error {
 	cm.localCache.Set(key, value)
 	return cm.redisClient.Set(key, value, expiration)
 }

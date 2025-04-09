@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"alerts/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 

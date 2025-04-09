@@ -2,6 +2,7 @@ package main
 
 import (
 	pb "alerts/api/proto/alert"
+	"alerts/internal/cache"
 	"alerts/internal/handlers"
 	"alerts/internal/repository"
 	"alerts/internal/server"
@@ -53,9 +54,19 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initialize Redis client (make sure Redis is running on the correct host and port)
+	redisHost := utils.GetEnv("REDIS_HOST", "redis")
+	redisClient := cache.NewRedisClient(redisHost, 6379, "", 0)
+
+	// Initialize LRU Cache (size of the local cache)
+	localCache := cache.NewLRUCache(100, 30*time.Second)
+
+	// Initialize CacheManager with Redis and Local Cache
+	cacheManager := cache.NewCacheManager(redisClient, localCache)
+
 	// Initialize repository, service and handlers
 	alertRepo := repository.NewAlertRepository(queries)
-	alertService := service.NewAlertService(alertRepo)
+	alertService := service.NewAlertService(alertRepo, cacheManager)
 	alertHandler := handlers.NewHandler(alertService)
 
 	grpcPort := utils.GetEnv("GRPC_PORT", "50051")

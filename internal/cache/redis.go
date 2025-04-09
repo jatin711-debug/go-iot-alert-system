@@ -27,7 +27,7 @@ func (r *RedisClient) Set(key string, value any, ttl time.Duration) error {
 	return r.client.Set(ctx, key, value, ttl).Err()
 }
 
-func (r *RedisClient) Get(key string) (string, error) {
+func (r *RedisClient) Get(key string) (any, error) {
 	ctx := context.Background()
 	return r.client.Get(ctx, key).Result()
 }
