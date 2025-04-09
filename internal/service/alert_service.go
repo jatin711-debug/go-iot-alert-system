@@ -3,6 +3,7 @@ package service
 import (
 	pb "alerts/api/proto/alert" // Import generated gRPC code
 	"alerts/internal/cache"
+	"alerts/internal/kafka"
 	"alerts/internal/repository"
 	"context"
 	"fmt"
@@ -14,11 +15,16 @@ type AlertService struct {
 	pb.UnimplementedAlertServiceServer
 	Repo         *repository.AlertRepository
 	CacheManager *cache.CacheManager
+	KafkaLogger  *kafka.KafkaLogger
 }
 
 // NewAlertService creates a new instance of AlertService
-func NewAlertService(repo *repository.AlertRepository, cacheManager *cache.CacheManager) *AlertService {
-	return &AlertService{Repo: repo, CacheManager: cacheManager}
+func NewAlertService(repo *repository.AlertRepository, cacheManager *cache.CacheManager, kafkaLogger *kafka.KafkaLogger) *AlertService {
+	return &AlertService{
+		Repo:         repo,
+		CacheManager: cacheManager,
+		KafkaLogger:  kafkaLogger,
+	}
 }
 
 // CreateAlert processes and saves an alert

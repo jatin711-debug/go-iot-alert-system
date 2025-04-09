@@ -4,6 +4,7 @@ import (
 	pb "alerts/api/proto/alert"
 	"alerts/internal/cache"
 	"alerts/internal/handlers"
+	"alerts/internal/kafka"
 	"alerts/internal/repository"
 	"alerts/internal/server"
 	"alerts/internal/service"
@@ -30,7 +31,7 @@ func main() {
 	defer logger.Sync()
 
 	// Kafka logger
-	kafkaLogger := handlers.NewKafkaLogger([]string{os.Getenv("KAFKA_BROKER")}, "iot-logs", logger)
+	kafkaLogger := kafka.NewKafkaLogger([]string{os.Getenv("KAFKA_BROKER")}, "iot-logs", logger)
 	defer kafkaLogger.Close()
 
 	// DB configuration
@@ -66,7 +67,7 @@ func main() {
 
 	// Initialize repository, service and handlers
 	alertRepo := repository.NewAlertRepository(queries)
-	alertService := service.NewAlertService(alertRepo, cacheManager)
+	alertService := service.NewAlertService(alertRepo, cacheManager, kafkaLogger)
 	alertHandler := handlers.NewHandler(alertService)
 
 	grpcPort := utils.GetEnv("GRPC_PORT", "50051")
