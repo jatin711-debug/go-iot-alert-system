@@ -28,7 +28,12 @@ var (
 func main() {
 	// Logger setup
 	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil && err.Error() != "invalid argument" {
+			// optional: log to stderr or stdlib log
+			_, _ = os.Stderr.WriteString("Failed to sync logger: " + err.Error() + "\n")
+		}
+	}()
 
 	// Kafka logger
 	kafkaLogger := kafka.NewKafkaLogger([]string{os.Getenv("KAFKA_BROKER")}, "iot-logs", logger)
