@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-pvc # This name must match the claimName in the Kafka deployment volume
+spec:
+  accessModes:
+    - ReadWriteOnce # Suitable for a single Kafka broker pod
+  resources:
+    requests:
+      storage: 10Gi # Adjust storage size as needed
+  # Optional: Specify a storageClassName if required by your K8s cluster
+  # storageClassName: standard

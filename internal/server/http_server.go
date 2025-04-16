@@ -27,6 +27,9 @@ func SetupNewRelic(appName, licenseKey string) (*newrelic.Application, error) {
 // SetupRoutes configures all API routes.
 // Note: We now accept a handler instance for dependency injection.
 func SetupRoutes(router *gin.Engine, alertHandler *handlers.Handler) {
+	// Set Gin to release mode for production.
+	// This is important for performance and security in production environments.
+	gin.SetMode(gin.ReleaseMode)
 	// Fetch New Relic license key from environment variables.
 	licenseKey := utils.GetEnv("NEW_RELIC_LICENSE_KEY", "")
 	app, err := SetupNewRelic("alerts", licenseKey)

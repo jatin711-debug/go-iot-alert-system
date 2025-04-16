@@ -22,3 +22,35 @@ spec:
           value: "2181"
         - name: ZOOKEEPER_TICK_TIME
           value: "2000"
+        # Add resource requests and limits
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        # Add liveness probe
+        livenessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        # Add readiness probe
+        readinessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        # volumeMounts: # Uncomment and configure if persistence is needed
+        # - name: zookeeper-data
+        #   mountPath: /var/lib/zookeeper/data
+        # - name: zookeeper-log
+        #   mountPath: /var/lib/zookeeper/log
+      # volumes: # Uncomment and define PersistentVolumeClaims if persistence is needed
+      # - name: zookeeper-data
+      #   persistentVolumeClaim:
+      #     claimName: zookeeper-data-pvc # Replace with your PVC name
+      # - name: zookeeper-log
+      #   persistentVolumeClaim:
+      #     claimName: zookeeper-log-pvc # Replace with your PVC name
