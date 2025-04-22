@@ -1,26 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: schema-registry
+  name: kafka-schema-registry
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: schema-registry
+      app: kafka-schema-registry
   template:
     metadata:
       labels:
-        app: schema-registry
+        app: kafka-schema-registry
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
-      - name: schema-registry
-        image: confluentinc/cp-schema-registry:7.6.0
-        ports:
-        - containerPort: 8081
-        env:
-        - name: SCHEMA_REGISTRY_HOST_NAME
-          value: "schema-registry"
-        - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
-          value: PLAINTEXT://kafka:9092
-        - name: SCHEMA_REGISTRY_LISTENERS
-          value: "http://0.0.0.0:8081"
+        - name: kafka-schema-registry
+          image: bitnami/schema-registry:7.6
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: SCHEMA_REGISTRY_LISTENERS
+              value: "http://0.0.0.0:8081"
+            - name: SCHEMA_REGISTRY_HOST_NAME
+              value: "kafka-schema-registry"
+            - name: SCHEMA_REGISTRY_KAFKASTORE_TOPIC
+              value: "_schemas"
+          livenessProbe:
+            httpGet:
+              path: /subjects
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /subjects
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 5
